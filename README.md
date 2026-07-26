@@ -37,17 +37,16 @@ envtidy check  .env vs .env.example
 3 issues found (1 missing, 1 extra, 1 empty)
 ```
 
-Exits `1` when drift is found, `0` when clean — drop it straight into CI or a pre-commit hook:
+Exits `1` when drift is found, `0` when clean — drop it straight into CI or [pre-commit](https://pre-commit.com):
 
 ```yaml
 # .pre-commit-config.yaml
-- repo: local
-  hooks:
-    - id: envtidy
-      name: envtidy check
-      entry: envtidy check
-      language: system
-      pass_filenames: false
+repos:
+  - repo: https://github.com/nidhisebastian008/envtidy
+    rev: v0.2.1
+    hooks:
+      - id: envtidy-check   # needs .env + .env.example present
+      - id: envtidy-scan
 ```
 
 ### `envtidy sync` — regenerate the example file

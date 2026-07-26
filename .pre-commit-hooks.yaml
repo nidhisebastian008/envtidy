@@ -1,0 +1,15 @@
+- id: envtidy-check
+  name: envtidy check (env drift vs .env.example)
+  description: Fail when .env and .env.example have drifted apart
+  entry: envtidy check
+  language: python
+  always_run: true
+  pass_filenames: false
+
+- id: envtidy-scan
+  name: envtidy scan (env files leaking into git)
+  description: Fail when env files are unignored, tracked, or lingering in git history
+  entry: envtidy scan
+  language: python
+  always_run: true
+  pass_filenames: false
