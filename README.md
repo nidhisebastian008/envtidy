@@ -2,6 +2,7 @@
 
 > Keep your `.env` files honest — catch drift, sync examples, find leaks.
 
+[![PyPI](https://img.shields.io/pypi/v/envtidy)](https://pypi.org/project/envtidy/)
 ![zero dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen)
 ![python](https://img.shields.io/badge/python-3.9%2B-blue)
 ![license](https://img.shields.io/badge/license-MIT-lightgrey)
@@ -15,9 +16,9 @@ Every team has lived this bug: someone adds `REDIS_URL` to their local `.env`, f
 ## Install
 
 ```bash
-pipx install git+https://github.com/nidhisebastian008/envtidy
+pipx install envtidy
 # or
-pip install git+https://github.com/nidhisebastian008/envtidy
+pip install envtidy
 ```
 
 ## Usage
