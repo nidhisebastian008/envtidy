@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="460" viewBox="0 0 780 460" font-family="SFMono-Regular, Menlo, Consolas, monospace" font-size="14">
+  <rect width="780" height="460" rx="10" fill="#0d1117"/>
+  <rect width="780" height="36" rx="10" fill="#161b22"/>
+  <rect y="18" width="780" height="18" fill="#161b22"/>
+  <circle cx="22" cy="18" r="6" fill="#ff5f57"/>
+  <circle cx="42" cy="18" r="6" fill="#febc2e"/>
+  <circle cx="62" cy="18" r="6" fill="#28c840"/>
+  <text x="390" y="23" fill="#8b949e" font-size="12" text-anchor="middle">envtidy</text>
+
+  <text x="24" y="70" fill="#c9d1d9"><tspan fill="#28c840">$</tspan> envtidy check</text>
+  <text x="24" y="94" fill="#c9d1d9" font-weight="bold">envtidy check  <tspan fill="#8b949e" font-weight="normal">.env vs .env.example</tspan></text>
+  <text x="24" y="118" fill="#c9d1d9">  <tspan fill="#ff5f57">missing</tspan>  REDIS_URL  <tspan fill="#8b949e">(in example, not in env)</tspan></text>
+  <text x="24" y="142" fill="#c9d1d9">  <tspan fill="#febc2e">extra</tspan>    DEBUG  <tspan fill="#8b949e">(in env, not in example)</tspan></text>
+  <text x="24" y="166" fill="#c9d1d9">  <tspan fill="#febc2e">empty</tspan>    SMTP_HOST  <tspan fill="#8b949e">(declared but has no value)</tspan></text>
+  <text x="24" y="196" fill="#c9d1d9"><tspan font-weight="bold">3</tspan> issues found (1 missing, 1 extra, 1 empty)</text>
+
+  <text x="24" y="248" fill="#c9d1d9"><tspan fill="#28c840">$</tspan> envtidy scan</text>
+  <text x="24" y="272" fill="#c9d1d9" font-weight="bold">envtidy scan  <tspan fill="#8b949e" font-weight="normal">~/code/myapp</tspan></text>
+  <text x="24" y="296" fill="#c9d1d9">  <tspan fill="#28c840">ignored</tspan>  .env</text>
+  <text x="24" y="320" fill="#c9d1d9">  <tspan fill="#febc2e">exposed</tspan>  staging.env  <tspan fill="#8b949e">(not in .gitignore — one `git add .` from leaking)</tspan></text>
+  <text x="24" y="344" fill="#c9d1d9">  <tspan fill="#ff5f57">TRACKED</tspan>  api/.env.production  <tspan fill="#8b949e">(committed to git — rotate these secrets)</tspan></text>
+  <text x="24" y="374" fill="#c9d1d9"><tspan font-weight="bold">2</tspan> files at risk</text>
+
+  <text x="24" y="426" fill="#c9d1d9"><tspan fill="#28c840">$</tspan> <tspan fill="#c9d1d9">envtidy sync</tspan></text>
+  <text x="24" y="450" fill="#28c840">created <tspan fill="#c9d1d9">.env.example (4 keys, values stripped)</tspan></text>
+</svg>

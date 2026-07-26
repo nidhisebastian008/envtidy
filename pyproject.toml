@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "envtidy"
+version = "0.1.0"
+description = "Keep your .env files honest: catch drift, sync examples, find leaks. Zero dependencies."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+authors = [{ name = "Nidhi Sebastian" }]
+keywords = ["dotenv", "env", "environment-variables", "cli", "devtools", "secrets"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Utilities",
+]
+
+[project.urls]
+Homepage = "https://github.com/nidhisebastian008/envtidy"
+Issues = "https://github.com/nidhisebastian008/envtidy/issues"
+
+[project.scripts]
+envtidy = "envtidy.cli:main"
+
+[tool.setuptools]
+packages = ["envtidy"]
