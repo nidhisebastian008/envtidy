@@ -225,6 +225,29 @@ def _git(root: Path, *argv: str) -> subprocess.CompletedProcess:
     )
 
 
+def env_files_in_history(root: Path) -> set[str]:
+    """Paths (relative to scan root) of env files ever added to git history."""
+    prefix = _git(root, "rev-parse", "--show-prefix").stdout.strip()
+    log = _git(
+        root, "log", "--all", "--diff-filter=A", "--name-only", "--pretty=format:"
+    )
+    if log.returncode != 0:
+        return set()
+    hits: set[str] = set()
+    for line in log.stdout.splitlines():
+        line = line.strip()
+        if not line or not is_env_file(os.path.basename(line)):
+            continue
+        # git log paths are relative to the repo top level; keep only those
+        # under the scan root and re-relativize them to it
+        if prefix:
+            if not line.startswith(prefix):
+                continue
+            line = line[len(prefix):]
+        hits.add(line)
+    return hits
+
+
 def cmd_scan(args: argparse.Namespace) -> int:
     root = Path(args.dir).resolve()
     if not root.is_dir():
@@ -239,33 +262,50 @@ def cmd_scan(args: argparse.Namespace) -> int:
                 env_files.append(Path(dirpath) / name)
 
     print(C.bold(f"envtidy scan  {C.dim(str(root))}"))
-    if not env_files:
+    in_git = _git(root, "rev-parse", "--is-inside-work-tree").returncode == 0
+    history = env_files_in_history(root) if in_git else set()
+
+    if not env_files and not history:
         print(f"  {C.green('ok')}       no env files found")
         return 0
 
-    in_git = _git(root, "rev-parse", "--is-inside-work-tree").returncode == 0
     issues = 0
+    seen: set[str] = set()
     for path in sorted(env_files):
-        rel = path.relative_to(root)
+        rel = str(path.relative_to(root))
+        seen.add(rel)
         if not in_git:
             print(f"  {C.cyan('found')}    {rel}  {C.dim('(not a git repo)')}")
             continue
-        tracked = _git(root, "ls-files", "--error-unmatch", str(rel)).returncode == 0
+        tracked = _git(root, "ls-files", "--error-unmatch", rel).returncode == 0
         if tracked:
             issues += 1
             print(f"  {C.red('TRACKED')}  {rel}  {C.dim('(committed to git — rotate these secrets)')}")
             continue
-        ignored = _git(root, "check-ignore", "-q", str(rel)).returncode == 0
+        if rel in history:
+            issues += 1
+            print(f"  {C.red('HISTORY')}  {rel}  {C.dim('(untracked now, but still in git history — rotate + scrub)')}")
+            continue
+        ignored = _git(root, "check-ignore", "-q", rel).returncode == 0
         if ignored:
             print(f"  {C.green('ignored')}  {rel}")
         else:
             issues += 1
             print(f"  {C.yellow('exposed')}  {rel}  {C.dim('(not in .gitignore — one `git add .` from leaking)')}")
 
+    # env files deleted from the working tree but still recoverable from history
+    for rel in sorted(history - seen):
+        if _git(root, "ls-files", "--error-unmatch", rel).returncode == 0:
+            continue  # currently tracked under a path outside the walk (skipped dir)
+        issues += 1
+        print(f"  {C.red('HISTORY')}  {rel}  {C.dim('(deleted, but still in git history — rotate + scrub)')}")
+
     if issues:
         print(f"\n{C.bold(str(issues))} file{'s' if issues != 1 else ''} at risk")
+        if any(rel in history for rel in seen) or history - seen:
+            print(C.dim("hint: scrub history with `git filter-repo --sensitive-data-removal --invert-paths --path <file>`"))
         return 1
-    print(f"\n{C.green('all clear')} — every env file is gitignored")
+    print(f"\n{C.green('all clear')} — every env file is gitignored and absent from git history")
     return 0
 
 

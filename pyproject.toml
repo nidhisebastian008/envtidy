@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "envtidy"
-version = "0.1.0"
+version = "0.2.0"
 description = "Keep your .env files honest: catch drift, sync examples, find leaks. Zero dependencies."
 readme = "README.md"
 license = "MIT"

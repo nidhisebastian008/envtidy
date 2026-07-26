@@ -60,9 +60,9 @@ created .env.example (4 keys, values stripped)
 
 Use `--dry-run` to preview without writing.
 
-### `envtidy scan` — find files about to leak
+### `envtidy scan` — find files that leaked (or are about to)
 
-Walks a directory tree, finds every env file, and checks each one against git:
+Walks a directory tree, finds every env file, and checks each one against git — **including the full git history**. Deleting a committed `.env` doesn't remove it; anyone with a clone can still recover it. `scan` catches that:
 
 ```
 $ envtidy scan
@@ -70,17 +70,26 @@ envtidy scan  ~/code/myapp
   ignored  .env
   exposed  staging.env  (not in .gitignore — one `git add .` from leaking)
   TRACKED  api/.env.production  (committed to git — rotate these secrets)
+  HISTORY  old/.env.local  (deleted, but still in git history — rotate + scrub)
 
-2 files at risk
+3 files at risk
+hint: scrub history with `git filter-repo --sensitive-data-removal --invert-paths --path <file>`
 ```
 
-- **ignored** — safely gitignored ✅
+- **ignored** — safely gitignored, never committed ✅
 - **exposed** — exists but *not* gitignored; one `git add .` away from a leak
-- **TRACKED** — already committed; treat those secrets as compromised and rotate them
+- **TRACKED** — committed right now; treat those secrets as compromised and rotate them
+- **HISTORY** — not in the working tree or index anymore, but recoverable from git history; rotate the secrets *and* scrub the history
 
-## Why not `<other tool>`?
+## Alternatives
 
-There are heavyweight secret scanners (gitleaks, trufflehog) and schema validators (pydantic-settings) — great tools, different job. envtidy is the *small* tool for the *common* case: keeping `.env` and `.env.example` in lockstep and making sure no env file slips into git. No config file, no rules to write, no dependencies to audit.
+Prior art exists — pick the right tool for your job:
+
+- [dotenv-linter](https://github.com/dotenv-linter/dotenv-linter) — fast Rust linter for `.env` *style* (duplicate keys, ordering, quoting), with a `compare` command for key diffs. No git awareness, no example generation.
+- [sync-dotenv](https://github.com/luqmanoop/sync-dotenv) — Node tool doing what `envtidy sync` does.
+- [gitleaks](https://github.com/gitleaks/gitleaks) / trufflehog / detect-secrets — heavyweight *content-level* secret scanners with rules and entropy checks. Use them for full audits; use `envtidy scan` for the quick file-level answer to "are my env files safe in this repo?"
+
+envtidy's niche: all three jobs (drift check, example sync, git-aware leak scan) in one zero-dependency CLI with no config.
 
 ## Details
 
